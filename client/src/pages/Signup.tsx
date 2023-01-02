@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
 import axios from 'axios';
 import API from '../utils/customAxios';
@@ -32,18 +32,22 @@ const MainLabel = styled.div`
 
 function Signup() {
   const formRef = useRef<HTMLFormElement | null>(null);
-  const inputEmailRef = useRef<HTMLInputElement | null>(null);
-  const inputPasswordRef = useRef<HTMLInputElement | null>(null);
+  // const inputEmailRef = useRef<HTMLInputElement | null>(null);
+  // const inputPasswordRef = useRef<HTMLInputElement | null>(null);
+  const [inputDatadValue, setInputDataValue] = useState({
+    email: '',
+    password: '',
+  });
   const formData = {
-    email: inputEmailRef?.current?.value,
-    password: inputPasswordRef?.current?.value,
+    email: inputDatadValue.email,
+    password: inputDatadValue.password,
   };
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log('formData email: ', formData.email);
-    console.log('formData password: ', formData.password);
+    // console.log('formData email: ', formData.email);
+    // console.log('formData password: ', formData.password);
     try {
-      API.post('/users/create', formData).then((res: any) => {
+      await API.post('/users/create', formData).then((res: any) => {
         if (res.status === 200) {
           console.log('정상적으로 요청되었습니다.');
           formRef?.current?.reset();
@@ -53,17 +57,39 @@ function Signup() {
       console.log(error);
     }
   };
+
+  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.type === 'email') {
+      setInputDataValue((prev) => {
+        return { ...prev, email: e.target.value };
+      });
+    } else {
+      setInputDataValue((prev) => {
+        return { ...prev, password: e.target.value };
+      });
+    }
+  };
   return (
     <SignupContainer>
       <MainLabel>Signup</MainLabel>
       <form onSubmit={handleSubmit} ref={formRef}>
         <Label>
           이메일
-          <Input type="email" ref={inputEmailRef} required />
+          <Input
+            type="email"
+            value={inputDatadValue.email}
+            onChange={onChange}
+            required
+          />
         </Label>
         <Label>
           비밀번호
-          <Input type="password" ref={inputPasswordRef} required />
+          <Input
+            type="password"
+            value={inputDatadValue.password}
+            onChange={onChange}
+            required
+          />
         </Label>
         <button type="submit">회원가입 하기</button>
       </form>
