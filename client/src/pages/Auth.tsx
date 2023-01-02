@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Signup from './Signup';
 import Login from './Login';
+import LoginSignup from './LoginSignup';
 import styled from 'styled-components';
 
 const Container = styled.div`
@@ -24,11 +25,27 @@ const LabelContainer = styled.div`
 
 function Auth() {
   const navigate = useNavigate();
+  const [formName, setFormName] = useState('');
   return (
     <Container>
-      <LabelContainer>회원가입/로그인</LabelContainer>
-      <Login />
-      <Signup />
+      <LabelContainer>
+        <button
+          onClick={() => {
+            setFormName('signup');
+          }}
+        >
+          회원가입
+        </button>
+        /
+        <button
+          onClick={() => {
+            setFormName('login');
+          }}
+        >
+          로그인
+        </button>
+      </LabelContainer>
+      <LoginSignup formName={formName} />
       <button onClick={() => navigate('/')}>홈으로</button>
     </Container>
   );

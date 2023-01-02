@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
 import API from '../utils/customAxios';
+import axios, { AxiosError } from 'axios';
 const Label = styled.label`
   font-weight: bold;
   margin: 10px 10px;
@@ -28,28 +29,40 @@ const MainLabel = styled.div`
   display: block;
   font-size: 30px;
 `;
-
-function Signup() {
+type ServerError = { errorMessage: string };
+function LoginSignup({ formName }: any) {
   const formRef = useRef<HTMLFormElement | null>(null);
   const [inputDatadValue, setInputDataValue] = useState({
     email: '',
     password: '',
   });
   const formData = {
-    email: inputDatadValue.email,
-    password: inputDatadValue.password,
+    email: inputDatadValue.email.trim(),
+    password: inputDatadValue.password.trim(),
   };
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      await API.post('/users/create', formData).then((res: any) => {
+      await API.post(
+        `/users/${formName === 'login' ? 'login' : 'create'}`,
+        formData,
+      ).then((res: any) => {
         if (res.status === 200) {
           console.log('정상적으로 요청되었습니다.');
+          console.log('res.data : ', res.data.token);
           formRef?.current?.reset();
         }
       });
     } catch (error) {
-      console.log(error);
+      if (axios.isAxiosError(error)) {
+        const serverError = error as AxiosError<ServerError>;
+        if (serverError && serverError.response) {
+          const jsonString = JSON.stringify(serverError.response.data);
+          const jsonObj = JSON.parse(jsonString);
+          alert(jsonObj.details);
+        }
+      }
+      return { errorMessage: 'Kuch to ghotala h' };
     }
   };
 
@@ -66,7 +79,7 @@ function Signup() {
   };
   return (
     <SignupContainer>
-      <MainLabel>Signup</MainLabel>
+      <MainLabel> {formName === 'login' ? 'Login' : 'Sign up'}</MainLabel>
       <form onSubmit={handleSubmit} ref={formRef}>
         <Label>
           이메일
@@ -86,10 +99,12 @@ function Signup() {
             required
           />
         </Label>
-        <button type="submit">회원가입 하기</button>
+        <button type="submit">
+          {formName === 'login' ? '로그인 하기' : '회원 가입'}
+        </button>
       </form>
     </SignupContainer>
   );
 }
 
-export default Signup;
+export default LoginSignup;

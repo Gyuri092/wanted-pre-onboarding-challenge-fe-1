@@ -1,6 +1,6 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
-import axios from 'axios';
+import API from '../utils/customAxios';
 const Label = styled.label`
   font-weight: bold;
   margin: 10px 10px;
@@ -16,7 +16,7 @@ const Input = styled.input`
   margin: 10px 10px;
 `;
 
-const LoginContainer = styled.div`
+const SignupContainer = styled.div`
   width: 100%;
   height: 100%;
   display: flex;
@@ -29,43 +29,67 @@ const MainLabel = styled.div`
   font-size: 30px;
 `;
 
-function Login() {
+function Signup() {
   const formRef = useRef<HTMLFormElement | null>(null);
-  const inputEmailRef = useRef<HTMLInputElement | null>(null);
-  const inputPasswordRef = useRef<HTMLInputElement | null>(null);
+  const [inputDatadValue, setInputDataValue] = useState({
+    email: '',
+    password: '',
+  });
   const formData = {
-    email: inputEmailRef.current?.value.trim(),
-    password: inputPasswordRef.current?.value.trim(),
+    email: inputDatadValue.email,
+    password: inputDatadValue.password,
   };
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      const response = await axios
-        .post('/users/login', JSON.stringify(formData))
-        .then((res) => console.log(res.data));
-
-      console.log(response);
-      // formRef?.current?.reset();
+      await API.post('/users/login', formData).then((res: any) => {
+        if (res.status === 200) {
+          console.log('정상적으로 요청되었습니다.');
+          formRef?.current?.reset();
+        }
+      });
     } catch (error) {
       console.log(error);
     }
   };
+
+  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.type === 'email') {
+      setInputDataValue((prev) => {
+        return { ...prev, email: e.target.value };
+      });
+    } else {
+      setInputDataValue((prev) => {
+        return { ...prev, password: e.target.value };
+      });
+    }
+  };
   return (
-    <LoginContainer>
+    <SignupContainer>
       <MainLabel>Login</MainLabel>
       <form onSubmit={handleSubmit} ref={formRef}>
         <Label>
           이메일
-          <Input type="email" ref={inputEmailRef} required />
+          <Input
+            type="email"
+            value={inputDatadValue.email}
+            onChange={onChange}
+            required
+          />
         </Label>
         <Label>
           비밀번호
-          <Input type="password" ref={inputPasswordRef} required />
+          <Input
+            type="password"
+            value={inputDatadValue.password}
+            onChange={onChange}
+            required
+          />
         </Label>
         <button type="submit">로그인 하기</button>
       </form>
-    </LoginContainer>
+    </SignupContainer>
   );
 }
 
-export default Login;
+export default Signup;
