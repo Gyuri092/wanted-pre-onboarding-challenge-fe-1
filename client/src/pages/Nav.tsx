@@ -40,6 +40,7 @@ function Nav() {
           ? '회원 가입 / 로그아웃'
           : '회원 가입 / 로그인'}
       </Button>
+      <Button onClick={() => navigate('/')}>Home</Button>
     </NavContainer>
   );
 }

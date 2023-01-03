@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import API from '../utils/customAxios';
 import axios, { AxiosError } from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const SubTodoContainer = styled.div`
   width: 30%;
@@ -33,6 +34,7 @@ const ListItem = styled.li`
 
 type ServerError = { errorMessage: string };
 function SubTodo() {
+  const navigate = useNavigate();
   const [list, setList] = useState([{ title: '', content: '' }]);
   useEffect(() => {
     GetTodo();
@@ -43,7 +45,6 @@ function SubTodo() {
         headers: { Authorization: localStorage.getItem('token') },
       }).then((res: any) => {
         if (res.status === 200) {
-          console.log('정상적으로 처리되었습니다.');
           setList(res.data.data);
         }
       });
@@ -59,12 +60,21 @@ function SubTodo() {
       }
     }
   };
+
   return (
     <SubTodoContainer>
       <SubTodoLabel>Todo List</SubTodoLabel>
       <ul>
         {list.map((item: any, idx: number) => {
-          return <ListItem key={idx}> {item.title}</ListItem>;
+          return (
+            <ListItem
+              key={item.id + idx}
+              onClick={() => navigate(`/todos/${item.id}`)}
+              id={item.id}
+            >
+              {item.title}
+            </ListItem>
+          );
         })}
       </ul>
     </SubTodoContainer>

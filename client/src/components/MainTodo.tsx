@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { HiPlus } from 'react-icons/hi';
 import { BiPencil } from 'react-icons/bi';
 import { BiTrash } from 'react-icons/bi';
 import API from '../utils/customAxios';
+import { useParams } from 'react-router-dom';
 import axios, { AxiosError } from 'axios';
 const MainTodoContainer = styled.div`
   width: 70%;
@@ -64,6 +65,8 @@ const Textarea = styled.textarea`
 
 type ServerError = { errorMessage: string };
 function MainTodo() {
+  const id = useParams();
+
   const [inputDatadValue, setInputDataValue] = useState({
     title: '',
     content: '',
@@ -107,6 +110,44 @@ function MainTodo() {
       });
     }
   };
+  // todolist 선택 시 url 변경 -> 상세페이지 render
+  useEffect(() => {
+    const getTodoById = async () => {
+      try {
+        await API.get(`/todos/${id.id}`, {
+          headers: { Authorization: localStorage.getItem('token') },
+        }).then((res: any) => {
+          if (res.status === 200) {
+            setInputDataValue((prev) => {
+              return {
+                ...prev,
+                title: res.data.data.title,
+                content: res.data.data.content,
+              };
+            });
+          }
+        });
+      } catch (error) {
+        console.log(error);
+        if (axios.isAxiosError(error)) {
+          const serverError = error as AxiosError<ServerError>;
+          if (serverError && serverError.response) {
+            const jsonString = JSON.stringify(serverError.response.data);
+            const jsonObj = JSON.parse(jsonString);
+            alert(jsonObj.details);
+          }
+        }
+      }
+    };
+    if (id.id) {
+      getTodoById();
+    } else {
+      setInputDataValue({
+        title: '',
+        content: '',
+      });
+    }
+  }, [id.id]);
   return (
     <MainTodoContainer>
       <ButtonContainer>

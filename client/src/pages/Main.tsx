@@ -12,7 +12,6 @@ const MainContainer = styled.div`
 function Main() {
   return (
     <MainContainer>
-      <Nav />
       <Todo />
     </MainContainer>
   );
