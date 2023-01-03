@@ -12,6 +12,7 @@ function App() {
       <Router>
         <Routes>
           <Route path="/" element={<Main />} />
+          <Route path="/todos" element={<Todo />} />
           <Route path="/todos/:id" element={<Todo />} />
           <Route path="/auth" element={<Auth />} />
         </Routes>

@@ -33,12 +33,20 @@ const Button = styled.div`
 
 function Nav() {
   const navigate = useNavigate();
+  const isToken = () => {
+    if (localStorage.getItem('token')) {
+      localStorage.removeItem('token');
+      alert('로그아웃 되었습니다.');
+      navigate('/');
+    } else {
+      navigate('/auth');
+    }
+  };
   return (
     <NavContainer>
-      <Button onClick={() => navigate('/auth')}>
-        {localStorage.getItem('token')
-          ? '회원 가입 / 로그아웃'
-          : '회원 가입 / 로그인'}
+      <Button onClick={() => navigate('/auth')}>회원 가입</Button>
+      <Button onClick={isToken}>
+        {localStorage.getItem('token') ? '로그아웃' : '로그인'}
       </Button>
       <Button onClick={() => navigate('/')}>Home</Button>
     </NavContainer>

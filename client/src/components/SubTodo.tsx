@@ -24,8 +24,31 @@ const SubTodoLabel = styled.div`
   box-sizing: border-box;
 `;
 
+const UnorderedList = styled.ul`
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+`;
+
 const ListItem = styled.li`
   margin-top: 15px;
+  cursor: pointer;
+  &: hover {
+    font-weight: bold;
+  }
+  box-sizing: border-box;
+  padding: 5px;
+`;
+
+const NewListItem = styled.li`
+  width: 100%;
+  height: 3%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  box-sizing: border-box;
+  padding: 5px;
+  border: 2px solid #b59ef5;
   cursor: pointer;
   &: hover {
     font-weight: bold;
@@ -37,7 +60,7 @@ function SubTodo() {
   const [list, setList] = useState([{ title: '', content: '' }]);
   useEffect(() => {
     GetTodo();
-  }, []);
+  }, [list]);
   const GetTodo = async () => {
     try {
       await API.get('/todos', {
@@ -55,7 +78,10 @@ function SubTodo() {
   return (
     <SubTodoContainer>
       <SubTodoLabel>Todo List</SubTodoLabel>
-      <ul>
+      <UnorderedList>
+        <NewListItem onClick={() => navigate('/todos')}>
+          새 Todo 작성하기
+        </NewListItem>
         {list.map((item: any, idx: number) => {
           return (
             <ListItem
@@ -67,7 +93,7 @@ function SubTodo() {
             </ListItem>
           );
         })}
-      </ul>
+      </UnorderedList>
     </SubTodoContainer>
   );
 }

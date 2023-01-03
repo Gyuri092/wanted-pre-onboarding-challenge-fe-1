@@ -4,10 +4,10 @@ import { HiPlus } from 'react-icons/hi';
 import { BiPencil } from 'react-icons/bi';
 import { BiTrash } from 'react-icons/bi';
 import API from '../utils/customAxios';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import handleError from '../utils/handleError';
 const MainTodoContainer = styled.div`
-  width: 70%;
+  width: 100%;
   height: 100%;
   background-color: white;
   border: 2px solid #b59ef5;
@@ -30,8 +30,22 @@ const Button = styled.button`
     background-color: #eae0f6;
   }
   transition: all 0.3s ease-in-out;
+  box-sizing: border-box;
 `;
-
+const UpdateButton = styled.div`
+  width: 50%;
+  height: 100%;
+  position: fixed;
+  bottom: 7%;
+  left: 18%;
+  height: 4%;
+  font-size: 18px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: none;
+  box-sizing: border-box;
+`;
 const ButtonContainer = styled.div`
   display: flex;
   width: 100%;
@@ -45,6 +59,7 @@ const ContentContainer = styled.div`
   height: 100%;
   display: flex;
   flex-direction: column;
+  box-sizing: border-box;
 `;
 
 const Input = styled.input`
@@ -53,19 +68,32 @@ const Input = styled.input`
   padding: 5px 10px 5px 10px;
   box-sizing: border-box;
   font-size: 20px;
+  &:focus {
+    outline: none;
+  }
+  box-sizing: border-box;
 `;
 
 const Textarea = styled.textarea`
   width: 100%;
-  height: 89.5%;
+  height: 91.1%;
   border: none;
   font-size: 16px;
   padding: 10px;
+  &:focus {
+    outline: none;
+  }
+  resize: none;
+  border: 2px solid #b59ef5;
+  box-sizing: border-box;
 `;
 
 function MainTodo() {
   const id = useParams();
-
+  const navigate = useNavigate();
+  const [isDisable, setIsDisable] = useState(false);
+  const [isUpdate, setIsUpdate] = useState(false);
+  const [oldContent, setOldContent] = useState({ title: '', content: '' });
   const [inputDatadValue, setInputDataValue] = useState({
     title: '',
     content: '',
@@ -81,7 +109,7 @@ function MainTodo() {
         headers: { Authorization: localStorage.getItem('token') },
       }).then((res: any) => {
         if (res.status === 200) {
-          console.log('정상적으로 처리되었습니다.');
+          alert('Todo가 추가되었습니다!');
           setInputDataValue({ title: '', content: '' });
         }
       });
@@ -90,13 +118,12 @@ function MainTodo() {
     }
   };
 
-  const ChangeTodo = async () => {
+  const UpdateTodo = async () => {
     try {
       await API.put(`/todos/${id.id}`, formData, {
         headers: { Authorization: localStorage.getItem('token') },
       }).then((res: any) => {
         if (res.status === 200) {
-          console.log('정상적으로 처리되었습니다.');
           alert('Todo가 수정되었습니다!');
         }
       });
@@ -110,7 +137,7 @@ function MainTodo() {
         headers: { Authorization: localStorage.getItem('token') },
       }).then((res: any) => {
         if (res.status === 200) {
-          console.log('정상적으로 처리되었습니다.');
+          setInputDataValue({ title: '', content: '' });
           alert('Todo가 삭제되었습니다!');
         }
       });
@@ -146,6 +173,7 @@ function MainTodo() {
                 content: res.data.data.content,
               };
             });
+            setIsDisable(true);
           }
         });
       } catch (error) {
@@ -159,18 +187,29 @@ function MainTodo() {
         title: '',
         content: '',
       });
+      setIsDisable(false);
     }
   }, [id.id]);
   return (
     <MainTodoContainer>
       <ButtonContainer>
-        <Button onClick={AddTodo}>
-          Todo 추가 <HiPlus />
-        </Button>
-        <Button onClick={ChangeTodo}>
-          Todo 수정
-          <BiPencil />
-        </Button>
+        {id.id ? null : (
+          <Button onClick={AddTodo}>
+            Todo 추가 <HiPlus />
+          </Button>
+        )}
+        {id.id ? (
+          <Button
+            onClick={() => {
+              setIsDisable(false);
+              setIsUpdate(true);
+              setOldContent(inputDatadValue);
+            }}
+          >
+            Todo 수정
+            <BiPencil />
+          </Button>
+        ) : null}
         <Button onClick={DeleteTodo}>
           Todo 삭제 <BiTrash />
         </Button>
@@ -182,6 +221,7 @@ function MainTodo() {
           value={inputDatadValue.title}
           onChange={onChange}
           placeholder="제목을 입력하세요..."
+          disabled={isDisable}
         />
         <Textarea
           name="content"
@@ -190,8 +230,27 @@ function MainTodo() {
           value={inputDatadValue.content}
           onChange={onChange}
           placeholder="내용을 입력하세요..."
+          disabled={isDisable}
         ></Textarea>
       </ContentContainer>
+      {isUpdate ? (
+        <UpdateButton>
+          <Button
+            onClick={() => {
+              navigate(`/todos/${id.id}`);
+              setIsDisable(true);
+              setInputDataValue({
+                title: oldContent.title,
+                content: oldContent.content,
+              });
+              setIsUpdate(false);
+            }}
+          >
+            취소하기
+          </Button>
+          <Button onClick={UpdateTodo}>수정하기</Button>
+        </UpdateButton>
+      ) : null}
     </MainTodoContainer>
   );
 }
