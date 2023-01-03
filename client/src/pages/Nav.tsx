@@ -28,6 +28,7 @@ const Button = styled.div`
     background-color: #eae0f6;
   }
   transition: all 0.3s ease-in-out;
+  box-sizing: border-box;
 `;
 
 function Nav() {
