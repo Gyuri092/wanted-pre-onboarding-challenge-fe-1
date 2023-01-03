@@ -5,7 +5,7 @@ import { BiPencil } from 'react-icons/bi';
 import { BiTrash } from 'react-icons/bi';
 import API from '../utils/customAxios';
 import { useParams } from 'react-router-dom';
-import axios, { AxiosError } from 'axios';
+import handleError from '../utils/handleError';
 const MainTodoContainer = styled.div`
   width: 70%;
   height: 100%;
@@ -63,7 +63,6 @@ const Textarea = styled.textarea`
   padding: 10px;
 `;
 
-type ServerError = { errorMessage: string };
 function MainTodo() {
   const id = useParams();
 
@@ -75,6 +74,7 @@ function MainTodo() {
     title: inputDatadValue.title,
     content: inputDatadValue.content,
   };
+
   const AddTodo = async () => {
     try {
       await API.post('/todos', formData, {
@@ -86,15 +86,36 @@ function MainTodo() {
         }
       });
     } catch (error) {
-      console.log(error);
-      if (axios.isAxiosError(error)) {
-        const serverError = error as AxiosError<ServerError>;
-        if (serverError && serverError.response) {
-          const jsonString = JSON.stringify(serverError.response.data);
-          const jsonObj = JSON.parse(jsonString);
-          alert(jsonObj.details);
+      handleError(error);
+    }
+  };
+
+  const ChangeTodo = async () => {
+    try {
+      await API.put(`/todos/${id.id}`, formData, {
+        headers: { Authorization: localStorage.getItem('token') },
+      }).then((res: any) => {
+        if (res.status === 200) {
+          console.log('정상적으로 처리되었습니다.');
+          alert('Todo가 수정되었습니다!');
         }
-      }
+      });
+    } catch (error) {
+      handleError(error);
+    }
+  };
+  const DeleteTodo = async () => {
+    try {
+      await API.delete(`/todos/${id.id}`, {
+        headers: { Authorization: localStorage.getItem('token') },
+      }).then((res: any) => {
+        if (res.status === 200) {
+          console.log('정상적으로 처리되었습니다.');
+          alert('Todo가 삭제되었습니다!');
+        }
+      });
+    } catch (error) {
+      handleError(error);
     }
   };
   const onChange = (
@@ -128,15 +149,7 @@ function MainTodo() {
           }
         });
       } catch (error) {
-        console.log(error);
-        if (axios.isAxiosError(error)) {
-          const serverError = error as AxiosError<ServerError>;
-          if (serverError && serverError.response) {
-            const jsonString = JSON.stringify(serverError.response.data);
-            const jsonObj = JSON.parse(jsonString);
-            alert(jsonObj.details);
-          }
-        }
+        handleError(error);
       }
     };
     if (id.id) {
@@ -154,11 +167,11 @@ function MainTodo() {
         <Button onClick={AddTodo}>
           Todo 추가 <HiPlus />
         </Button>
-        <Button>
+        <Button onClick={ChangeTodo}>
           Todo 수정
           <BiPencil />
         </Button>
-        <Button>
+        <Button onClick={DeleteTodo}>
           Todo 삭제 <BiTrash />
         </Button>
       </ButtonContainer>

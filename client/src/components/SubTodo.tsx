@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import API from '../utils/customAxios';
-import axios, { AxiosError } from 'axios';
 import { useNavigate } from 'react-router-dom';
+import handleError from '../utils/handleError';
 
 const SubTodoContainer = styled.div`
   width: 30%;
@@ -32,7 +32,6 @@ const ListItem = styled.li`
   }
 `;
 
-type ServerError = { errorMessage: string };
 function SubTodo() {
   const navigate = useNavigate();
   const [list, setList] = useState([{ title: '', content: '' }]);
@@ -49,15 +48,7 @@ function SubTodo() {
         }
       });
     } catch (error) {
-      console.log(error);
-      if (axios.isAxiosError(error)) {
-        const serverError = error as AxiosError<ServerError>;
-        if (serverError && serverError.response) {
-          const jsonString = JSON.stringify(serverError.response.data);
-          const jsonObj = JSON.parse(jsonString);
-          alert(jsonObj.details);
-        }
-      }
+      handleError(error);
     }
   };
 

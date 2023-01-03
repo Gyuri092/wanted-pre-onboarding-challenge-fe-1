@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
 import API from '../utils/customAxios';
-import axios, { AxiosError } from 'axios';
+import handleError from '../utils/handleError';
 import { useNavigate } from 'react-router-dom';
 const Label = styled.label`
   font-weight: bold;
@@ -75,7 +75,7 @@ const SubmitButton = styled.button`
   }
   transition: all 0.3s ease-in-out;
 `;
-type ServerError = { errorMessage: string };
+
 function LoginSignup() {
   const navigate = useNavigate();
   const [formName, setFormName] = useState('');
@@ -113,14 +113,7 @@ function LoginSignup() {
         }
       });
     } catch (error) {
-      if (axios.isAxiosError(error)) {
-        const serverError = error as AxiosError<ServerError>;
-        if (serverError && serverError.response) {
-          const jsonString = JSON.stringify(serverError.response.data);
-          const jsonObj = JSON.parse(jsonString);
-          alert(jsonObj.details);
-        }
-      }
+      handleError(error);
     }
   };
 
