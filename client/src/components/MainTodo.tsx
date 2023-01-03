@@ -5,7 +5,6 @@ import { BiPencil } from 'react-icons/bi';
 import { BiTrash } from 'react-icons/bi';
 import API from '../utils/customAxios';
 import axios, { AxiosError } from 'axios';
-import { useNavigate } from 'react-router-dom';
 const MainTodoContainer = styled.div`
   width: 70%;
   height: 100%;
@@ -65,7 +64,6 @@ const Textarea = styled.textarea`
 
 type ServerError = { errorMessage: string };
 function MainTodo() {
-  const token = localStorage.getItem('token');
   const [inputDatadValue, setInputDataValue] = useState({
     title: '',
     content: '',
@@ -77,10 +75,11 @@ function MainTodo() {
   const AddTodo = async () => {
     try {
       await API.post('/todos', formData, {
-        headers: { Authorization: token },
+        headers: { Authorization: localStorage.getItem('token') },
       }).then((res: any) => {
         if (res.status === 200) {
           console.log('정상적으로 처리되었습니다.');
+          setInputDataValue({ title: '', content: '' });
         }
       });
     } catch (error) {

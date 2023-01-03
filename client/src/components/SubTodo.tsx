@@ -1,5 +1,7 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
+import API from '../utils/customAxios';
+import axios, { AxiosError } from 'axios';
 
 const SubTodoContainer = styled.div`
   width: 30%;
@@ -20,10 +22,51 @@ const SubTodoLabel = styled.div`
   padding: 5px;
   box-sizing: border-box;
 `;
+
+const ListItem = styled.li`
+  margin-top: 15px;
+  cursor: pointer;
+  &: hover {
+    font-weight: bold;
+  }
+`;
+
+type ServerError = { errorMessage: string };
 function SubTodo() {
+  const [list, setList] = useState([{ title: '', content: '' }]);
+  useEffect(() => {
+    GetTodo();
+  }, []);
+  const GetTodo = async () => {
+    try {
+      await API.get('/todos', {
+        headers: { Authorization: localStorage.getItem('token') },
+      }).then((res: any) => {
+        if (res.status === 200) {
+          console.log('정상적으로 처리되었습니다.');
+          setList(res.data.data);
+        }
+      });
+    } catch (error) {
+      console.log(error);
+      if (axios.isAxiosError(error)) {
+        const serverError = error as AxiosError<ServerError>;
+        if (serverError && serverError.response) {
+          const jsonString = JSON.stringify(serverError.response.data);
+          const jsonObj = JSON.parse(jsonString);
+          alert(jsonObj.details);
+        }
+      }
+    }
+  };
   return (
     <SubTodoContainer>
       <SubTodoLabel>Todo List</SubTodoLabel>
+      <ul>
+        {list.map((item: any, idx: number) => {
+          return <ListItem key={idx}> {item.title}</ListItem>;
+        })}
+      </ul>
     </SubTodoContainer>
   );
 }
