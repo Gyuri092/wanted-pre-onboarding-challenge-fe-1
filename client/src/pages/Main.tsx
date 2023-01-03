@@ -1,13 +1,18 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import Nav from './Nav';
+import styled from 'styled-components';
+
+const MainContainer = styled.div`
+  width: 100%;
+  height: 100%;
+`;
 
 function Main() {
-  const navigate = useNavigate();
   return (
-    <div>
+    <MainContainer>
+      <Nav />
       <div>메인화면입니다</div>
-      <button onClick={() => navigate('/auth')}>회원 가입 / 로그인</button>
-    </div>
+    </MainContainer>
   );
 }
 

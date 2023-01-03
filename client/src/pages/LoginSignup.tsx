@@ -22,20 +22,58 @@ const SignupContainer = styled.div`
   width: 100%;
   height: 100%;
   display: flex;
-  flex-direction: colunmn;
-  justify-content: center;
+  flex-direction: column;
+  justify-content: flex-start;
+  padding: 20px;
+  box-sizing: border-box;
 `;
 
 const MainLabel = styled.div`
   display: block;
+  width: 50%;
+  height: 10%;
   font-size: 30px;
 `;
 
 const LabelContainer = styled.div`
-  width: 40%;
+  width: 100%;
   height: 20%;
   text-align: center;
   font-size: 30px;
+`;
+const Button = styled.div`
+  width: 100%;
+  height: 30%;
+  font-size: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: none;
+  border-radius: 5px;
+  font-weight: bold;
+  color: #6445ff;
+  cursor: pointer;
+  &: hover {
+    background-color: #eae0f6;
+  }
+  transition: all 0.3s ease-in-out;
+`;
+const SubmitButton = styled.button`
+  width: 100%;
+  height: 30%;
+  font-size: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: none;
+  border-radius: 5px;
+  font-weight: bold;
+  color: #6445ff;
+  cursor: pointer;
+  &: hover {
+    background-color: #eae0f6;
+  }
+  transition: all 0.3s ease-in-out;
 `;
 type ServerError = { errorMessage: string };
 function LoginSignup() {
@@ -66,8 +104,11 @@ function LoginSignup() {
           formRef?.current?.reset();
           if (localStorage.getItem('token') !== res.data.token) {
             alert('토큰이 유효하지 않습니다.');
-            navigate('/login');
+            navigate('/auth');
             localStorage.removeItem('token');
+          } else if (localStorage.getItem('token') === res.data.token) {
+            alert('로그인 되었습니다.');
+            navigate('/');
           }
         }
       });
@@ -108,25 +149,37 @@ function LoginSignup() {
   return (
     <>
       <LabelContainer>
-        <button
+        <Button
           onClick={() => {
             setFormName('signup');
             formRef?.current?.reset();
             setInputDataValue({ email: '', password: '' });
           }}
         >
-          회원가입
-        </button>
-        /
-        <button
-          onClick={() => {
-            setFormName('login');
-            formRef?.current?.reset();
-            setInputDataValue({ email: '', password: '' });
-          }}
-        >
-          로그인
-        </button>
+          Sign up
+        </Button>
+
+        {localStorage.getItem('token') ? (
+          <Button
+            onClick={() => {
+              localStorage.removeItem('token');
+              alert('로그아웃 되었습니다.');
+              navigate('/auth');
+            }}
+          >
+            Logout
+          </Button>
+        ) : (
+          <Button
+            onClick={() => {
+              setFormName('login');
+              formRef?.current?.reset();
+              setInputDataValue({ email: '', password: '' });
+            }}
+          >
+            Login
+          </Button>
+        )}
       </LabelContainer>
       <SignupContainer>
         <MainLabel> {formName === 'login' ? 'Login' : 'Sign up'}</MainLabel>
@@ -149,9 +202,9 @@ function LoginSignup() {
               required
             />
           </Label>
-          <button type="submit" disabled={isDisable}>
+          <SubmitButton type="submit" disabled={isDisable}>
             {formName === 'login' ? '로그인 하기' : '회원 가입'}
-          </button>
+          </SubmitButton>
         </form>
       </SignupContainer>
     </>

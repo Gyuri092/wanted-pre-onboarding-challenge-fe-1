@@ -1,23 +1,21 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import LoginSignup from './LoginSignup';
 import styled from 'styled-components';
 
-const Container = styled.div`
-  width: 70%;
-  height: 70%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  border: 2px solid #d9d4ff;
-  background-color: white;
-  border-radius: 10px;
-`;
-const Button = styled.div`
+const NavContainer = styled.div`
+  box-sizing: border-box;
   width: 100%;
-  height: 10%;
-  font-size: 20px;
+  height: 5%;
+  background-color: #d9d4ff;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 10px;
+`;
+
+const Button = styled.div`
+  width: 30%;
+  height: 80%;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -31,14 +29,18 @@ const Button = styled.div`
   }
   transition: all 0.3s ease-in-out;
 `;
-function Auth() {
+
+function Nav() {
   const navigate = useNavigate();
   return (
-    <Container>
-      <LoginSignup />
-      <Button onClick={() => navigate('/')}>홈으로</Button>
-    </Container>
+    <NavContainer>
+      <Button onClick={() => navigate('/auth')}>
+        {localStorage.getItem('token')
+          ? '회원 가입 / 로그아웃'
+          : '회원 가입 / 로그인'}
+      </Button>
+    </NavContainer>
   );
 }
 
-export default Auth;
+export default Nav;
